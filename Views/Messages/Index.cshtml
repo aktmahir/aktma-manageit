@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Messages";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">💬 Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var conv in Model)
+                            {
+                                <a href="@Url.Action("Chat", new { userId = conv.User.Id, currentUserId = ViewBag.CurrentUserId })" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@conv.User.Name</h6>
+                                        @if (conv.UnreadCount > 0)
+                                        {
+                                            <span class="badge bg-danger">@conv.UnreadCount</span>
+                                        }
+                                    </div>
+                                    <p class="mb-1 text-muted" style="font-size: 0.85rem;">
+                                        @if (conv.LastMessage != null)
+                                        {
+                                            @if (conv.LastMessage.SenderId == ViewBag.CurrentUserId)
+                                            {
+                                                <text>You: </text>
+                                            }
+                                            @conv.LastMessage.Content.Substring(0, Math.Min(20, conv.LastMessage.Content.Length))@(conv.LastMessage.Content.Length > 20 ? "..." : "")
+                                        }
+                                    </p>
+                                    @if (conv.LastMessage != null)
+                                    {
+                                        <small class="text-muted">@conv.LastMessage.SentAt.ToString("g")</small>
+                                    }
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-3 text-muted">No conversations yet</div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Select a conversation or start a new one</h5>
+                        <a href="@Url.Action("Index", "Home", new { userId = ViewBag.CurrentUserId })" class="btn btn-sm btn-light">Back</a>
+                    </div>
+                </div>
+                <div class="card-body text-center text-muted" style="min-height: 400px;">
+                    <p class="mt-5">Select a user from the left to start chatting</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

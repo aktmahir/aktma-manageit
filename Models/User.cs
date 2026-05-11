@@ -8,5 +8,7 @@ namespace CalendarApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public ICollection<Event> Events { get; set; } = new List<Event>();
+        public ICollection<Message> SentMessages { get; set; } = new List<Message>();
+        public ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
     }
 }

@@ -1,0 +1,89 @@
+@model IEnumerable<CalendarApp.Models.Message>
+
+@{
+    ViewData["Title"] = "Chat with " + ViewBag.OtherUserName;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">💬 Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    <a href="@Url.Action("Index", new { currentUserId = ViewBag.CurrentUserId })" class="list-group-item list-group-item-action">
+                        ← Back to conversations
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card" style="display: flex; flex-direction: column; height: 600px;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Chat with @ViewBag.OtherUserName</h5>
+                </div>
+
+                <div class="card-body" style="overflow-y: auto; flex: 1;">
+                    @if (Model.Any())
+                    {
+                        @foreach (var message in Model)
+                        {
+                            @if (message.SenderId == ViewBag.CurrentUserId)
+                            {
+                                <!-- Sent message (right side) -->
+                                <div class="row mb-3">
+                                    <div class="col-md-12 text-end">
+                                        <div class="d-inline-block bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                                            <p class="mb-1">@message.Content</p>
+                                            <small>@message.SentAt.ToString("g")</small>
+                                            @if (message.SenderId == ViewBag.CurrentUserId)
+                                            {
+                                                <form asp-action="DeleteMessage" method="post" style="display: inline;">
+                                                    <input type="hidden" name="id" value="@message.Id" />
+                                                    <input type="hidden" name="currentUserId" value="@ViewBag.CurrentUserId" />
+                                                    <input type="hidden" name="otherUserId" value="@ViewBag.OtherUserId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger" style="font-size: 0.7rem;">Delete</button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Received message (left side) -->
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <div class="d-inline-block bg-light p-2 rounded" style="max-width: 70%;">
+                                            <p class="mb-1">@message.Content</p>
+                                            <small class="text-muted">@message.SentAt.ToString("g")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted mt-5">
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <form asp-action="SendMessage" method="post">
+                        <div class="input-group">
+                            <input type="hidden" name="senderId" value="@ViewBag.CurrentUserId" />
+                            <input type="hidden" name="receiverId" value="@ViewBag.OtherUserId" />
+                            <input type="text" class="form-control" name="content" placeholder="Type your message..." required />
+                            <button class="btn btn-primary" type="submit">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
