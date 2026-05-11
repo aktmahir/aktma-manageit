@@ -1,0 +1,83 @@
+@model IEnumerable<CalendarApp.Models.User>
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>👥 Manage Users</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", new { adminUserId = ViewBag.AdminUserId })" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <span class="badge @GetRoleBadgeClass(user.Role)">@user.Role</span>
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                @(user.LastLogin?.ToString("g") ?? "Never")
+                            </td>
+                            <td>@user.CreatedAt.ToString("g")</td>
+                            <td>
+                                <a href="@Url.Action("UserDetails", new { id = user.Id, adminUserId = ViewBag.AdminUserId })" class="btn btn-sm btn-primary">Details</a>
+                                @if (user.Id != ViewBag.AdminUserId)
+                                {
+                                    <a href="@Url.Action("UserDetails", new { id = user.Id, adminUserId = ViewBag.AdminUserId })" class="btn btn-sm btn-warning">Edit</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetRoleBadgeClass(CalendarApp.Models.UserRole role)
+    {
+        return role switch
+        {
+            CalendarApp.Models.UserRole.Admin => "bg-danger",
+            CalendarApp.Models.UserRole.CompanyOwner => "bg-dark",
+            CalendarApp.Models.UserRole.CompanyManager => "bg-secondary",
+            CalendarApp.Models.UserRole.CompanyPersonel => "bg-info",
+            CalendarApp.Models.UserRole.Member => "bg-primary",
+            CalendarApp.Models.UserRole.Customer => "bg-warning",
+            _ => "bg-light"
+        };
+    }
+}

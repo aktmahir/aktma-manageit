@@ -12,6 +12,7 @@ namespace CalendarApp.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,10 +43,18 @@ namespace CalendarApp.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+            // Configure AuditLog relationships
+            modelBuilder.Entity<AuditLog>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.AuditLogs)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Seed initial data
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "John Doe", Email = "john@example.com", CreatedAt = DateTime.Now },
-                new User { Id = 2, Name = "Jane Smith", Email = "jane@example.com", CreatedAt = DateTime.Now }
+                new User { Id = 1, Name = "Admin User", Email = "admin@example.com", PasswordHash = "admin123hash", Role = UserRole.Admin, IsActive = true, CreatedAt = DateTime.Now },
+                new User { Id = 2, Name = "John Doe", Email = "john@example.com", PasswordHash = "john123hash", Role = UserRole.CompanyOwner, IsActive = true, CreatedAt = DateTime.Now },
+                new User { Id = 3, Name = "Jane Smith", Email = "jane@example.com", PasswordHash = "jane123hash", Role = UserRole.Member, IsActive = true, CreatedAt = DateTime.Now }
             );
 
             var today = DateTime.Now;

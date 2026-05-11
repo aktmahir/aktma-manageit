@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Analytics";
+}
+
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>📊 Analytics Dashboard</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", new { adminUserId = ViewBag.AdminUserId })" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">User Role Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int totalUsers = ViewBag.RoleDistribution.Sum(x => x.Count);
+                            }
+                            @foreach (var item in ViewBag.RoleDistribution.OrderByDescending(x => x.Count))
+                            {
+                                var percentage = (item.Count * 100) / totalUsers;
+                                <tr>
+                                    <td>
+                                        <span class="badge @GetRoleBadgeClass(item.Role)">@item.Role</span>
+                                    </td>
+                                    <td>@item.Count</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@item.Count" aria-valuemin="0" aria-valuemax="@totalUsers">
+                                                @percentage%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Recent Logins</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.RecentLogins.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Last Login</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in ViewBag.RecentLogins)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@user.Name</strong><br/>
+                                            <small class="text-muted">@user.Email</small>
+                                        </td>
+                                        <td>@user.LastLogin?.ToString("g")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">No recent logins found</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetRoleBadgeClass(CalendarApp.Models.UserRole role)
+    {
+        return role switch
+        {
+            CalendarApp.Models.UserRole.Admin => "bg-danger",
+            CalendarApp.Models.UserRole.CompanyOwner => "bg-dark",
+            CalendarApp.Models.UserRole.CompanyManager => "bg-secondary",
+            CalendarApp.Models.UserRole.CompanyPersonel => "bg-info",
+            CalendarApp.Models.UserRole.Member => "bg-primary",
+            CalendarApp.Models.UserRole.Customer => "bg-warning",
+            _ => "bg-light"
+        };
+    }
+}
