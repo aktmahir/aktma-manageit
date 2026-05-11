@@ -1,0 +1,30 @@
+@model CalendarApp.Models.User
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Create New User</h1>
+
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="Name" name="Name" asp-for="Name" placeholder="Enter full name" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="Email" name="Email" asp-for="Email" placeholder="Enter email address" required />
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Create User</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

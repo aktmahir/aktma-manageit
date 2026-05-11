@@ -1,0 +1,43 @@
+@model CalendarApp.Models.Event
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>@Model.Title</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Description:</strong> @Model.Description</p>
+                    <p>
+                        <strong>Date:</strong>
+                        @if (Model.IsAllDay)
+                        {
+                            <span>@Model.StartTime.ToString("dddd, MMMM d, yyyy") (All Day)</span>
+                        }
+                        else
+                        {
+                            <span>@Model.StartTime.ToString("dddd, MMMM d, yyyy h:mm tt") - @Model.EndTime.ToString("h:mm tt")</span>
+                        }
+                    </p>
+                    <p><strong>Location:</strong> @Model.Location</p>
+                    <p><strong>Category:</strong> <span class="badge bg-secondary">@Model.Category</span></p>
+                    @if (!string.IsNullOrEmpty(Model.ReminderTime))
+                    {
+                        <p><strong>Reminder:</strong> @Model.ReminderTime</p>
+                    }
+                    <p><strong>Created:</strong> @Model.CreatedAt.ToString("g")</p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+                <a href="@Url.Action("Delete", new { id = Model.Id })" class="btn btn-danger">Delete</a>
+                <a href="@Url.Action("Index", new { userId = Model.UserId })" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+    </div>
+</div>

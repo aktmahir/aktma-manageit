@@ -1,0 +1,50 @@
+@model IEnumerable<CalendarApp.Models.User>
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Manage Users</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Create")" class="btn btn-success">+ New User</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Email</td>
+                        <td>@item.CreatedAt.ToString("g")</td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-primary">Details</a>
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">No users found. <a href="@Url.Action("Create")">Create one</a></div>
+    }
+</div>

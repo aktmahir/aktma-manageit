@@ -1,0 +1,77 @@
+@model CalendarApp.Models.Event
+
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Edit Event</h1>
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="CreatedAt" />
+                
+                <div class="mb-3">
+                    <label for="Title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="Title" name="Title" asp-for="Title" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description</label>
+                    <textarea class="form-control" id="Description" name="Description" asp-for="Description" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Location" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="Location" name="Location" asp-for="Location" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="StartTime" class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="StartTime" name="StartTime" asp-for="StartTime" required />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="EndTime" class="form-label">End Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="EndTime" name="EndTime" asp-for="EndTime" required />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="Category" class="form-label">Category</label>
+                        <select class="form-control" id="Category" name="Category" asp-for="Category" required>
+                            <option value="0">Work</option>
+                            <option value="1">Personal</option>
+                            <option value="2">Meeting</option>
+                            <option value="3">Birthday</option>
+                            <option value="4">Holiday</option>
+                            <option value="5">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check mt-4">
+                            <input type="checkbox" class="form-check-input" id="IsAllDay" name="IsAllDay" asp-for="IsAllDay" />
+                            <label class="form-check-label" for="IsAllDay">All Day Event</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ReminderTime" class="form-label">Reminder</label>
+                    <input type="text" class="form-control" id="ReminderTime" name="ReminderTime" asp-for="ReminderTime" />
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="@Url.Action("Index", new { userId = Model.UserId })" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

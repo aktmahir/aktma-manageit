@@ -1,0 +1,53 @@
+@model CalendarApp.Models.User
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>@Model.Name</h1>
+
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Name:</strong> @Model.Name</p>
+                    <p><strong>Email:</strong> @Model.Email</p>
+                    <p><strong>Created:</strong> @Model.CreatedAt.ToString("g")</p>
+                    <p><strong>Total Events:</strong> @Model.Events.Count</p>
+                </div>
+            </div>
+
+            @if (Model.Events.Any())
+            {
+                <h3 class="mt-4">Events</h3>
+                <table class="table table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var @event in Model.Events.OrderBy(e => e.StartTime))
+                        {
+                            <tr>
+                                <td>@event.Title</td>
+                                <td>@event.StartTime.ToString("g")</td>
+                                <td><span class="badge bg-secondary">@event.Category</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <div class="mt-4">
+                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+                <a href="@Url.Action("Delete", new { id = Model.Id })" class="btn btn-danger">Delete</a>
+                <a href="@Url.Action("Index", "Home", new { userId = Model.Id })" class="btn btn-info">View Calendar</a>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+    </div>
+</div>

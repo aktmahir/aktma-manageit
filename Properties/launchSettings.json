@@ -1,0 +1,25 @@
+{
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iis": {
+            "applicationUrl": "http://localhost/CalendarApp",
+            "sslPort": 0
+        },
+        "iisExpress": {
+            "applicationUrl": "http://localhost:5000",
+            "sslPort": 5001
+        }
+    },
+    "profiles": {
+        "CalendarApp": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": true,
+            "applicationUrl": "https://localhost:5001;http://localhost:5000",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

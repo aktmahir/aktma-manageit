@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Calendar Management";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Welcome to Calendar Manager</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Index", "Users")" class="btn btn-info">Manage Users</a>
+            <a href="@Url.Action("Index", "Events", new { userId = ViewBag.UserId })" class="btn btn-primary">View Events</a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Your Upcoming Events</h3>
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var @event in Model)
+                        {
+                            <tr>
+                                <td><strong>@event.Title</strong></td>
+                                <td>
+                                    @if (event.IsAllDay)
+                                    {
+                                        <span>@event.StartTime.ToString("dddd, MMMM d, yyyy") (All Day)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@event.StartTime.ToString("dddd, MMMM d, yyyy h:mm tt")</span>
+                                    }
+                                </td>
+                                <td>@event.Location</td>
+                                <td><span class="badge bg-secondary">@event.Category</span></td>
+                                <td>
+                                    <a href="@Url.Action("Details", "Events", new { id = @event.Id })" class="btn btn-sm btn-info">View</a>
+                                    <a href="@Url.Action("Edit", "Events", new { id = @event.Id })" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="@Url.Action("Delete", "Events", new { id = @event.Id })" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <a href="@Url.Action("Create", "Events", new { userId = ViewBag.UserId })" class="btn btn-success mt-3">+ Create New Event</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>No events scheduled yet. <a href="@Url.Action("Create", "Events", new { userId = ViewBag.UserId })">Create your first event</a></p>
+        </div>
+    }
+</div>

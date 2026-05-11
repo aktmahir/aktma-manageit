@@ -1,0 +1,56 @@
+@model IEnumerable<CalendarApp.Models.Event>
+
+@{
+    ViewData["Title"] = "Events";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Events for User #@ViewBag.UserId</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Create", new { userId = ViewBag.UserId })" class="btn btn-success">+ New Event</a>
+            <a href="@Url.Action("Index", "Home", new { userId = ViewBag.UserId })" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Start Date/Time</th>
+                    <th>End Date/Time</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>All Day</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.StartTime.ToString("g")</td>
+                        <td>@item.EndTime.ToString("g")</td>
+                        <td>@item.Location</td>
+                        <td><span class="badge bg-info">@item.Category</span></td>
+                        <td>@(item.IsAllDay ? "Yes" : "No")</td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-primary">Details</a>
+                            <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning">No events found. <a href="@Url.Action("Create", new { userId = ViewBag.UserId })">Create one</a></div>
+    }
+</div>
