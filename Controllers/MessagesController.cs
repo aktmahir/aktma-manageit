@@ -5,7 +5,7 @@ using CalendarApp.Models;
 
 namespace CalendarApp.Controllers
 {
-    public class MessagesController : Controller
+    public class MessagesController : AppController
     {
         private readonly CalendarDbContext _context;
 
@@ -15,21 +15,25 @@ namespace CalendarApp.Controllers
         }
 
         // GET: Messages - Show conversations list
-        public async Task<IActionResult> Index(int currentUserId = 1)
+        public async Task<IActionResult> Index(int? currentUserId = null)
         {
+            var activeUserId = currentUserId ?? CurrentUserId;
+            if (activeUserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             var conversations = await _context.Messages
-                .Where(m => m.SenderId == currentUserId || m.ReceiverId == currentUserId)
-                .GroupBy(m => m.SenderId == currentUserId ? m.ReceiverId : m.SenderId)
+                .Where(m => m.SenderId == activeUserId || m.ReceiverId == activeUserId)
+                .GroupBy(m => m.SenderId == activeUserId ? m.ReceiverId : m.SenderId)
                 .Select(g => new
                 {
                     UserId = g.Key,
                     LastMessage = g.OrderByDescending(m => m.SentAt).FirstOrDefault(),
-                    UnreadCount = g.Count(m => m.ReceiverId == currentUserId && !m.IsRead)
+                    UnreadCount = g.Count(m => m.ReceiverId == activeUserId && !m.IsRead)
                 })
                 .ToListAsync();
 
             var users = await _context.Users
-                .Where(u => u.Id != currentUserId)
+                .Where(u => u.Id != activeUserId)
                 .ToListAsync();
 
             var conversationUsers = new List<ConversationSummaryViewModel>();
@@ -44,14 +48,15 @@ namespace CalendarApp.Controllers
                 });
             }
 
-            ViewBag.CurrentUserId = currentUserId;
+            ViewBag.CurrentUserId = activeUserId;
             return View(conversationUsers.OrderByDescending(c => c.LastMessage?.SentAt ?? DateTime.MinValue).ToList());
         }
 
         // GET: Messages/Chat/5
-        public async Task<IActionResult> Chat(int userId, int currentUserId = 1)
+        public async Task<IActionResult> Chat(int userId)
         {
-            if (userId == currentUserId)
+            var activeUserId = CurrentUserId;
+            if (userId == activeUserId)
                 return BadRequest("Cannot chat with yourself");
 
             var otherUser = await _context.Users.FindAsync(userId);
@@ -59,20 +64,20 @@ namespace CalendarApp.Controllers
                 return NotFound();
 
             var messages = await _context.Messages
-                .Where(m => (m.SenderId == currentUserId && m.ReceiverId == userId) ||
-                            (m.SenderId == userId && m.ReceiverId == currentUserId))
+                .Where(m => (m.SenderId == activeUserId && m.ReceiverId == userId) ||
+                            (m.SenderId == userId && m.ReceiverId == activeUserId))
                 .OrderBy(m => m.SentAt)
                 .ToListAsync();
 
             // Mark received messages as read
-            var unreadMessages = messages.Where(m => m.ReceiverId == currentUserId && !m.IsRead).ToList();
+            var unreadMessages = messages.Where(m => m.ReceiverId == activeUserId && !m.IsRead).ToList();
             foreach (var msg in unreadMessages)
             {
                 msg.IsRead = true;
             }
             await _context.SaveChangesAsync();
 
-            ViewBag.CurrentUserId = currentUserId;
+            ViewBag.CurrentUserId = activeUserId;
             ViewBag.OtherUserId = userId;
             ViewBag.OtherUserName = otherUser.Name;
 
@@ -84,6 +89,9 @@ namespace CalendarApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendMessage(int senderId, int receiverId, string content)
         {
+            if (senderId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             if (string.IsNullOrWhiteSpace(content))
                 return BadRequest("Message cannot be empty");
 
@@ -111,7 +119,10 @@ namespace CalendarApp.Controllers
         public async Task<IActionResult> DeleteMessage(int id, int currentUserId, int otherUserId)
         {
             var message = await _context.Messages.FindAsync(id);
-            if (message == null || message.SenderId != currentUserId)
+            if (message == null)
+                return NotFound();
+
+            if (message.SenderId != CurrentUserId && !IsAdmin)
                 return Unauthorized();
 
             _context.Messages.Remove(message);

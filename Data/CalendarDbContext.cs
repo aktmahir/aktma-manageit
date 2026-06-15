@@ -51,13 +51,15 @@ namespace CalendarApp.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Seed initial data
+            var seedTimestamp = new DateTime(2026, 01, 01, 9, 0, 0, DateTimeKind.Utc);
+
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Admin User", Email = "admin@example.com", PasswordHash = "admin123hash", Role = UserRole.Admin, IsActive = true, CreatedAt = DateTime.Now },
-                new User { Id = 2, Name = "John Doe", Email = "john@example.com", PasswordHash = "john123hash", Role = UserRole.CompanyOwner, IsActive = true, CreatedAt = DateTime.Now },
-                new User { Id = 3, Name = "Jane Smith", Email = "jane@example.com", PasswordHash = "jane123hash", Role = UserRole.Member, IsActive = true, CreatedAt = DateTime.Now }
+                new User { Id = 1, Name = "Admin User", Email = "admin@example.com", PasswordHash = PasswordHasher.Hash("Admin123!"), Role = UserRole.Admin, IsActive = true, CreatedAt = seedTimestamp },
+                new User { Id = 2, Name = "John Doe", Email = "john@example.com", PasswordHash = PasswordHasher.Hash("John123!"), Role = UserRole.CompanyOwner, IsActive = true, CreatedAt = seedTimestamp },
+                new User { Id = 3, Name = "Jane Smith", Email = "jane@example.com", PasswordHash = PasswordHasher.Hash("Jane123!"), Role = UserRole.Member, IsActive = true, CreatedAt = seedTimestamp }
             );
 
-            var today = DateTime.Now;
+            var today = new DateTime(2026, 01, 02, 9, 0, 0, DateTimeKind.Utc);
             modelBuilder.Entity<Event>().HasData(
                 new Event
                 {
@@ -70,7 +72,7 @@ namespace CalendarApp.Data
                     Location = "Conference Room A",
                     Category = EventCategory.Meeting,
                     IsAllDay = false,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedTimestamp
                 },
                 new Event
                 {
@@ -82,7 +84,7 @@ namespace CalendarApp.Data
                     EndTime = today.AddDays(5),
                     Category = EventCategory.Work,
                     IsAllDay = true,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = seedTimestamp
                 }
             );
         }

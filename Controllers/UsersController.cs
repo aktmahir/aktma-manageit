@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CalendarApp.Data;
 using CalendarApp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CalendarApp.Controllers
 {
-    public class UsersController : Controller
+    [Authorize(Roles = "Admin")]
+    public class UsersController : AppController
     {
         private readonly CalendarDbContext _context;
 

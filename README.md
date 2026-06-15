@@ -11,11 +11,12 @@ A C# .NET MVC web application for managing user calendars with event scheduling,
 - **Event Details**: Store location, description, reminders, and time information
 - **Responsive UI**: Built with Bootstrap 5 for mobile and desktop compatibility
 - **Database Integration**: SQL Server with Entity Framework Core
+- **Authentication**: Cookie-based login with role claims
 
 ## Tech Stack
 
-- **Framework**: ASP.NET Core 6.0 MVC
-- **Database**: SQL Server with Entity Framework Core
+- **Framework**: ASP.NET Core MVC on .NET 8
+- **Database**: SQL Server with Entity Framework Core 8
 - **Frontend**: HTML5, Bootstrap 5, CSS
 - **Language**: C#
 
@@ -44,7 +45,7 @@ A C# .NET MVC web application for managing user calendars with event scheduling,
 
 ## Prerequisites
 
-- .NET 6.0 SDK or later
+- .NET 8 SDK or later
 - Visual Studio 2022 or Visual Studio Code
 - SQL Server LocalDB (or any SQL Server instance)
 
@@ -80,6 +81,13 @@ dotnet run
 ```
 
 The application will start at `https://localhost:5001`
+
+### 6. Sign In
+Use one of the seeded demo accounts:
+
+- Admin: `admin@example.com` / `Admin123!`
+- Company owner: `john@example.com` / `John123!`
+- Member: `jane@example.com` / `Jane123!`
 
 ## Models
 
@@ -138,6 +146,7 @@ Initial seed data includes:
 - **Home**: `/` - Main calendar view
 - **Events**: `/events` - Event management
 - **Users**: `/users` - User management
+- **Login**: `/Account/Login` - Sign in to the app
 
 ## Future Enhancements
 

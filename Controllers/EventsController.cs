@@ -5,7 +5,7 @@ using CalendarApp.Models;
 
 namespace CalendarApp.Controllers
 {
-    public class EventsController : Controller
+    public class EventsController : AppController
     {
         private readonly CalendarDbContext _context;
 
@@ -15,14 +15,18 @@ namespace CalendarApp.Controllers
         }
 
         // GET: Events
-        public async Task<IActionResult> Index(int userId = 1)
+        public async Task<IActionResult> Index(int? userId = null)
         {
+            var targetUserId = userId ?? CurrentUserId;
+            if (targetUserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             var events = await _context.Events
-                .Where(e => e.UserId == userId)
+                .Where(e => e.UserId == targetUserId)
                 .OrderBy(e => e.StartTime)
                 .ToListAsync();
 
-            ViewBag.UserId = userId;
+            ViewBag.UserId = targetUserId;
             return View(events);
         }
 
@@ -36,12 +40,18 @@ namespace CalendarApp.Controllers
             if (@event == null)
                 return NotFound();
 
+            if (@event.UserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             return View(@event);
         }
 
         // GET: Events/Create
         public IActionResult Create(int userId = 1)
         {
+            if (userId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             ViewBag.UserId = userId;
             return View();
         }
@@ -51,6 +61,9 @@ namespace CalendarApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int userId, [Bind("UserId,Title,Description,StartTime,EndTime,Location,Category,IsAllDay,ReminderTime")] Event @event)
         {
+            if (userId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             @event.UserId = userId;
 
             if (ModelState.IsValid)
@@ -74,6 +87,9 @@ namespace CalendarApp.Controllers
             if (@event == null)
                 return NotFound();
 
+            if (@event.UserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             ViewBag.UserId = @event.UserId;
             return View(@event);
         }
@@ -86,10 +102,18 @@ namespace CalendarApp.Controllers
             if (id != @event.Id)
                 return NotFound();
 
+            var existingEvent = await _context.Events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+            if (existingEvent == null)
+                return NotFound();
+
+            if (existingEvent.UserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    @event.UserId = existingEvent.UserId;
                     _context.Update(@event);
                     await _context.SaveChangesAsync();
                 }
@@ -118,6 +142,9 @@ namespace CalendarApp.Controllers
             if (@event == null)
                 return NotFound();
 
+            if (@event.UserId != CurrentUserId && !IsAdmin)
+                return Forbid();
+
             ViewBag.UserId = @event.UserId;
             return View(@event);
         }
@@ -130,6 +157,9 @@ namespace CalendarApp.Controllers
             var @event = await _context.Events.FindAsync(id);
             if (@event != null)
             {
+                if (@event.UserId != CurrentUserId && !IsAdmin)
+                    return Forbid();
+
                 int userId = @event.UserId;
                 _context.Events.Remove(@event);
                 await _context.SaveChangesAsync();

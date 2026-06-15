@@ -4,10 +4,12 @@ using CalendarApp.Data;
 using CalendarApp.Models;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CalendarApp.Controllers
 {
-    public class AdminController : Controller
+    [Authorize(Roles = "Admin")]
+    public class AdminController : AppController
     {
         private readonly CalendarDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -19,10 +21,10 @@ namespace CalendarApp.Controllers
         }
 
         // GET: Admin/Dashboard
-        public async Task<IActionResult> Dashboard(int adminUserId = 1)
+        public async Task<IActionResult> Dashboard(int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized("Only admins can access this page");
 
             var stats = new
@@ -34,28 +36,28 @@ namespace CalendarApp.Controllers
                 AuditLogs = await _context.AuditLogs.CountAsync()
             };
 
-            ViewBag.AdminUserId = adminUserId;
+            ViewBag.AdminUserId = CurrentUserId;
             ViewBag.Stats = stats;
             return View();
         }
 
         // GET: Admin/ManageUsers
-        public async Task<IActionResult> ManageUsers(int adminUserId = 1)
+        public async Task<IActionResult> ManageUsers(int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var users = await _context.Users.ToListAsync();
-            ViewBag.AdminUserId = adminUserId;
+            ViewBag.AdminUserId = CurrentUserId;
             return View(users);
         }
 
         // GET: Admin/UserDetails/5
-        public async Task<IActionResult> UserDetails(int id, int adminUserId = 1)
+        public async Task<IActionResult> UserDetails(int id, int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var user = await _context.Users
@@ -66,7 +68,7 @@ namespace CalendarApp.Controllers
             if (user == null)
                 return NotFound();
 
-            ViewBag.AdminUserId = adminUserId;
+            ViewBag.AdminUserId = CurrentUserId;
             ViewBag.Roles = Enum.GetValues(typeof(UserRole));
             return View(user);
         }
@@ -74,10 +76,10 @@ namespace CalendarApp.Controllers
         // POST: Admin/AssignRole
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignRole(int userId, int roleValue, int adminUserId = 1)
+        public async Task<IActionResult> AssignRole(int userId, int roleValue, int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var user = await _context.Users.FindAsync(userId);
@@ -91,7 +93,7 @@ namespace CalendarApp.Controllers
             // Log audit
             var auditLog = new AuditLog
             {
-                UserId = adminUserId,
+                UserId = CurrentUserId,
                 Action = "AssignRole",
                 Details = $"Changed user {user.Name} role from {oldRole} to {user.Role}",
                 IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
@@ -100,16 +102,16 @@ namespace CalendarApp.Controllers
             _context.AuditLogs.Add(auditLog);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("UserDetails", new { id = userId, adminUserId });
+            return RedirectToAction("UserDetails", new { id = userId, adminUserId = CurrentUserId });
         }
 
         // POST: Admin/ToggleUserStatus
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleUserStatus(int userId, int adminUserId = 1)
+        public async Task<IActionResult> ToggleUserStatus(int userId, int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var user = await _context.Users.FindAsync(userId);
@@ -122,7 +124,7 @@ namespace CalendarApp.Controllers
             // Log audit
             var auditLog = new AuditLog
             {
-                UserId = adminUserId,
+                UserId = CurrentUserId,
                 Action = "ToggleUserStatus",
                 Details = $"User {user.Name} status changed to {(user.IsActive ? "Active" : "Inactive")}",
                 IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
@@ -131,16 +133,16 @@ namespace CalendarApp.Controllers
             _context.AuditLogs.Add(auditLog);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("UserDetails", new { id = userId, adminUserId });
+            return RedirectToAction("UserDetails", new { id = userId, adminUserId = CurrentUserId });
         }
 
         // POST: Admin/ResetPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(int userId, int adminUserId = 1)
+        public async Task<IActionResult> ResetPassword(int userId, int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var user = await _context.Users.FindAsync(userId);
@@ -154,7 +156,7 @@ namespace CalendarApp.Controllers
             // Log audit
             var auditLog = new AuditLog
             {
-                UserId = adminUserId,
+                UserId = CurrentUserId,
                 Action = "ResetPassword",
                 Details = $"Reset password for user {user.Name}",
                 IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
@@ -164,17 +166,17 @@ namespace CalendarApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            ViewBag.AdminUserId = adminUserId;
+            ViewBag.AdminUserId = CurrentUserId;
             ViewBag.NewPassword = newPassword;
             ViewBag.Message = $"Password reset successfully. New password: {newPassword}";
-            return RedirectToAction("UserDetails", new { id = userId, adminUserId });
+            return RedirectToAction("UserDetails", new { id = userId, adminUserId = CurrentUserId });
         }
 
         // GET: Admin/AuditLogs
-        public async Task<IActionResult> AuditLogs(int adminUserId = 1, int page = 1)
+        public async Task<IActionResult> AuditLogs(int adminUserId = 0, int page = 1)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             const int pageSize = 50;
@@ -196,7 +198,7 @@ namespace CalendarApp.Controllers
 
             var totalLogs = await _context.AuditLogs.CountAsync();
 
-            ViewBag.AdminUserId = adminUserId;
+            ViewBag.AdminUserId = CurrentUserId;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalLogs / pageSize);
 
@@ -206,13 +208,13 @@ namespace CalendarApp.Controllers
         // POST: Admin/DeleteUser
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(int userId, int adminUserId = 1)
+        public async Task<IActionResult> DeleteUser(int userId, int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
-            if (userId == adminUserId)
+            if (userId == CurrentUserId)
                 return BadRequest("Cannot delete yourself");
 
             var user = await _context.Users.FindAsync(userId);
@@ -222,7 +224,7 @@ namespace CalendarApp.Controllers
             // Log audit before deletion
             var auditLog = new AuditLog
             {
-                UserId = adminUserId,
+                UserId = CurrentUserId,
                 Action = "DeleteUser",
                 Details = $"Deleted user {user.Name} ({user.Email})",
                 IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
@@ -232,14 +234,14 @@ namespace CalendarApp.Controllers
             _context.Users.Remove(user);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("ManageUsers", new { adminUserId });
+            return RedirectToAction("ManageUsers", new { adminUserId = CurrentUserId });
         }
 
         // GET: Admin/Analytics
-        public async Task<IActionResult> Analytics(int adminUserId = 1)
+        public async Task<IActionResult> Analytics(int adminUserId = 0)
         {
-            var admin = await _context.Users.FindAsync(adminUserId);
-            if (admin == null || admin.Role != UserRole.Admin)
+            var admin = await _context.Users.FindAsync(CurrentUserId);
+            if (admin == null)
                 return Unauthorized();
 
             var roleDistribution = await _context.Users
@@ -255,7 +257,7 @@ namespace CalendarApp.Controllers
 
             var viewModel = new AnalyticsViewModel
             {
-                AdminUserId = adminUserId,
+                AdminUserId = CurrentUserId,
                 RoleDistribution = roleDistribution,
                 RecentLogins = recentLogins
             };
