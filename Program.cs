@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CalendarApp.Data;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplicationBuilder.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();

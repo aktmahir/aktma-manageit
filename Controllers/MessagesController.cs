@@ -32,11 +32,16 @@ namespace CalendarApp.Controllers
                 .Where(u => u.Id != currentUserId)
                 .ToListAsync();
 
-            var conversationUsers = new List<(User User, Message? LastMessage, int UnreadCount)>();
+            var conversationUsers = new List<ConversationSummaryViewModel>();
             foreach (var user in users)
             {
                 var conv = conversations.FirstOrDefault(c => c.UserId == user.Id);
-                conversationUsers.Add((user, conv?.LastMessage, conv?.UnreadCount ?? 0));
+                conversationUsers.Add(new ConversationSummaryViewModel
+                {
+                    User = user,
+                    LastMessage = conv?.LastMessage,
+                    UnreadCount = conv?.UnreadCount ?? 0
+                });
             }
 
             ViewBag.CurrentUserId = currentUserId;

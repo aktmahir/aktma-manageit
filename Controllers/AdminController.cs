@@ -183,6 +183,15 @@ namespace CalendarApp.Controllers
                 .OrderByDescending(a => a.Timestamp)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(a => new AuditLogViewModel
+                {
+                    Timestamp = a.Timestamp,
+                    Action = a.Action,
+                    Details = a.Details,
+                    IpAddress = a.IpAddress,
+                    UserName = a.User != null ? a.User.Name : null,
+                    UserEmail = a.User != null ? a.User.Email : null
+                })
                 .ToListAsync();
 
             var totalLogs = await _context.AuditLogs.CountAsync();
@@ -235,7 +244,7 @@ namespace CalendarApp.Controllers
 
             var roleDistribution = await _context.Users
                 .GroupBy(u => u.Role)
-                .Select(g => new { Role = g.Key, Count = g.Count() })
+                .Select(g => new RoleCountViewModel { Role = g.Key, Count = g.Count() })
                 .ToListAsync();
 
             var recentLogins = await _context.Users
@@ -244,11 +253,14 @@ namespace CalendarApp.Controllers
                 .Take(10)
                 .ToListAsync();
 
-            ViewBag.AdminUserId = adminUserId;
-            ViewBag.RoleDistribution = roleDistribution;
-            ViewBag.RecentLogins = recentLogins;
+            var viewModel = new AnalyticsViewModel
+            {
+                AdminUserId = adminUserId,
+                RoleDistribution = roleDistribution,
+                RecentLogins = recentLogins
+            };
 
-            return View();
+            return View(viewModel);
         }
 
         private string HashPassword(string password)
@@ -263,17 +275,16 @@ namespace CalendarApp.Controllers
         private string GenerateRandomPassword(int length = 12)
         {
             const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
-            using (var rng = new RNGCryptoServiceProvider())
+            byte[] tokenData = new byte[length];
+            RandomNumberGenerator.Fill(tokenData);
+
+            var result = new StringBuilder();
+            foreach (byte b in tokenData)
             {
-                byte[] tokenData = new byte[length];
-                rng.GetBytes(tokenData);
-                var result = new StringBuilder();
-                foreach (byte b in tokenData)
-                {
-                    result.Append(validChars[b % validChars.Length]);
-                }
-                return result.ToString();
+                result.Append(validChars[b % validChars.Length]);
             }
+
+            return result.ToString();
         }
     }
 }

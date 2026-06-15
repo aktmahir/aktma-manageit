@@ -9,10 +9,10 @@ namespace CalendarApp.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Event> Events { get; set; } = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

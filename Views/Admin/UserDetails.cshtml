@@ -71,7 +71,14 @@
                                     <select class="form-select" id="roleValue" name="roleValue" required>
                                         @foreach (CalendarApp.Models.UserRole role in ViewBag.Roles)
                                         {
-                                            <option value="@((int)role)" @(Model.Role == role ? "selected" : "")>@role</option>
+                                            if (Model.Role == role)
+                                            {
+                                                <option value="@((int)role)" selected="selected">@role</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@((int)role)">@role</option>
+                                            }
                                         }
                                     </select>
                                     <button type="submit" class="btn btn-primary" formaction="@Url.Action("AssignRole", new { userId = Model.Id, adminUserId = ViewBag.AdminUserId })">Assign</button>
@@ -135,12 +142,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var @event in Model.Events.OrderByDescending(e => e.CreatedAt).Take(5))
+                                @foreach (var item in Model.Events.OrderByDescending(e => e.CreatedAt).Take(5))
                                 {
                                     <tr>
-                                        <td>@event.Title</td>
-                                        <td>@event.StartTime.ToString("g")</td>
-                                        <td><span class="badge bg-info">@event.Category</span></td>
+                                        <td>@item.Title</td>
+                                        <td>@item.StartTime.ToString("g")</td>
+                                        <td><span class="badge bg-info">@item.Category</span></td>
                                     </tr>
                                 }
                             </tbody>

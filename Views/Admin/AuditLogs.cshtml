@@ -1,4 +1,4 @@
-@model IEnumerable<CalendarApp.Models.AuditLog>
+@model IEnumerable<CalendarApp.Models.AuditLogViewModel>
 
 @{
     ViewData["Title"] = "Audit Logs";
@@ -35,9 +35,13 @@
                             <tr>
                                 <td>@log.Timestamp.ToString("g")</td>
                                 <td>
-                                    @if (log.User != null)
+                                    @if (!string.IsNullOrWhiteSpace(log.UserName))
                                     {
-                                        <strong>@log.User.Name</strong> (@log.User.Email)
+                                        <strong>@log.UserName</strong>
+                                        @if (!string.IsNullOrWhiteSpace(log.UserEmail))
+                                        {
+                                            <small>(@log.UserEmail)</small>
+                                        }
                                     }
                                     else
                                     {

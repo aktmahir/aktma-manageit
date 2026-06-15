@@ -27,5 +27,10 @@ namespace CalendarApp.Controllers
             ViewBag.UserId = userId;
             return View(events);
         }
+
+        public IActionResult Error()
+        {
+            return View();
+        }
     }
 }

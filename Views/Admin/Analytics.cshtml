@@ -1,3 +1,5 @@
+@model CalendarApp.Models.AnalyticsViewModel
+
 @{
     ViewData["Title"] = "Analytics";
 }
@@ -29,9 +31,9 @@
                         </thead>
                         <tbody>
                             @{
-                                int totalUsers = ViewBag.RoleDistribution.Sum(x => x.Count);
+                                int totalUsers = Model.RoleDistribution.Sum(x => x.Count);
                             }
-                            @foreach (var item in ViewBag.RoleDistribution.OrderByDescending(x => x.Count))
+                            @foreach (var item in Model.RoleDistribution.OrderByDescending(x => x.Count))
                             {
                                 var percentage = (item.Count * 100) / totalUsers;
                                 <tr>
@@ -60,7 +62,7 @@
                     <h5 class="mb-0">Recent Logins</h5>
                 </div>
                 <div class="card-body">
-                    @if (ViewBag.RecentLogins.Any())
+                    @if (Model.RecentLogins.Any())
                     {
                         <table class="table table-sm">
                             <thead>
@@ -70,7 +72,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var user in ViewBag.RecentLogins)
+                                @foreach (var user in Model.RecentLogins)
                                 {
                                     <tr>
                                         <td>

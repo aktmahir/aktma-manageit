@@ -1,3 +1,5 @@
+@model IEnumerable<CalendarApp.Models.Event>
+
 @{
     ViewData["Title"] = "Calendar Management";
 }
@@ -14,7 +16,7 @@
         </div>
     </div>
 
-    @if (Model != null && Model.Count > 0)
+    @if (Model != null && Model.Count() > 0)
     {
         <div class="row">
             <div class="col-md-12">
@@ -30,26 +32,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var @event in Model)
+                        @foreach (var item in Model)
                         {
                             <tr>
-                                <td><strong>@event.Title</strong></td>
+                                <td><strong>@item.Title</strong></td>
                                 <td>
-                                    @if (event.IsAllDay)
+                                    @if (item.IsAllDay)
                                     {
-                                        <span>@event.StartTime.ToString("dddd, MMMM d, yyyy") (All Day)</span>
+                                        <span>@item.StartTime.ToString("dddd, MMMM d, yyyy") (All Day)</span>
                                     }
                                     else
                                     {
-                                        <span>@event.StartTime.ToString("dddd, MMMM d, yyyy h:mm tt")</span>
+                                        <span>@item.StartTime.ToString("dddd, MMMM d, yyyy h:mm tt")</span>
                                     }
                                 </td>
-                                <td>@event.Location</td>
-                                <td><span class="badge bg-secondary">@event.Category</span></td>
+                                <td>@item.Location</td>
+                                <td><span class="badge bg-secondary">@item.Category</span></td>
                                 <td>
-                                    <a href="@Url.Action("Details", "Events", new { id = @event.Id })" class="btn btn-sm btn-info">View</a>
-                                    <a href="@Url.Action("Edit", "Events", new { id = @event.Id })" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="@Url.Action("Delete", "Events", new { id = @event.Id })" class="btn btn-sm btn-danger">Delete</a>
+                                    <a href="@Url.Action("Details", "Events", new { id = item.Id })" class="btn btn-sm btn-info">View</a>
+                                    <a href="@Url.Action("Edit", "Events", new { id = item.Id })" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="@Url.Action("Delete", "Events", new { id = item.Id })" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>
                         }

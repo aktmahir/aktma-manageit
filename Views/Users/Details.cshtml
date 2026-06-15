@@ -30,12 +30,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var @event in Model.Events.OrderBy(e => e.StartTime))
+                        @foreach (var item in Model.Events.OrderBy(e => e.StartTime))
                         {
                             <tr>
-                                <td>@event.Title</td>
-                                <td>@event.StartTime.ToString("g")</td>
-                                <td><span class="badge bg-secondary">@event.Category</span></td>
+                                <td>@item.Title</td>
+                                <td>@item.StartTime.ToString("g")</td>
+                                <td><span class="badge bg-secondary">@item.Category</span></td>
                             </tr>
                         }
                     </tbody>
