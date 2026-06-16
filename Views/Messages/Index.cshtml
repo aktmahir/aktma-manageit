@@ -17,8 +17,8 @@
                         <div class="list-group">
                             @foreach (var conv in Model)
                             {
-                                <a href="@Url.Action("Chat", new { userId = conv.User.Id, currentUserId = ViewBag.CurrentUserId })" 
-                                   class="list-group-item list-group-item-action">
+<a href="@Url.Action("Chat", new { userId = conv.User.Id })"
+                                    class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">@conv.User.Name</h6>
                                         @if (conv.UnreadCount > 0)

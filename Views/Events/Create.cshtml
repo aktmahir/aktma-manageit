@@ -10,6 +10,7 @@
             <h1>Create New Event</h1>
 
             <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="userId" value="@ViewBag.UserId" />
                 
                 <div class="mb-3">

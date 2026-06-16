@@ -66,19 +66,19 @@ namespace CalendarApp.Controllers
 
             @event.UserId = userId;
 
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                try
                 {
                     @event.CreatedAt = DateTime.UtcNow;
                     _context.Add(@event);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index), new { userId });
                 }
-            }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError(string.Empty, "Unable to save event. Please try again.");
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError(string.Empty, "Unable to save event. Please try again.");
+                }
             }
 
             ViewBag.UserId = userId;
@@ -124,6 +124,7 @@ namespace CalendarApp.Controllers
                     @event.UserId = existingEvent.UserId;
                     _context.Update(@event);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index), new { userId = @event.UserId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -132,8 +133,6 @@ namespace CalendarApp.Controllers
                     else
                         throw;
                 }
-
-                return RedirectToAction(nameof(Index), new { userId = @event.UserId });
             }
 
             ViewBag.UserId = @event.UserId;
@@ -163,18 +162,16 @@ namespace CalendarApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var @event = await _context.Events.FindAsync(id);
-            if (@event != null)
-            {
-                if (@event.UserId != CurrentUserId && !IsAdmin)
-                    return Forbid();
+            if (@event == null)
+                return NotFound();
 
-                int userId = @event.UserId;
-                _context.Events.Remove(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { userId });
-            }
+            if (@event.UserId != CurrentUserId && !IsAdmin)
+                return Forbid();
 
-            return NotFound();
+            int userId = @event.UserId;
+            _context.Events.Remove(@event);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { userId });
         }
 
         private bool EventExists(int id)

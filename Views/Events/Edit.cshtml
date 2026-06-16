@@ -10,6 +10,7 @@
             <h1>Edit Event</h1>
 
             <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="UserId" />
                 <input type="hidden" asp-for="CreatedAt" />

@@ -10,8 +10,7 @@
             <h1>Welcome to Calendar Manager</h1>
         </div>
         <div class="col-md-4 text-end">
-            <a href="@Url.Action("Index", "Messages", new { currentUserId = ViewBag.UserId })" class="btn btn-info">💬 Chat</a>
-            <a href="@Url.Action("Index", "Users")" class="btn btn-info">Manage Users</a>
+            <a href="@Url.Action("Index", "Messages")" class="btn btn-info">💬 Chat</a>
             <a href="@Url.Action("Index", "Events", new { userId = ViewBag.UserId })" class="btn btn-primary">View Events</a>
         </div>
     </div>

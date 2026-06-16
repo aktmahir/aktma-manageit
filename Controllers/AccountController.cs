@@ -32,29 +32,37 @@ namespace CalendarApp.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.IsActive);
-            if (user == null || !PasswordHasher.Verify(model.Password, user.PasswordHash))
+            try
             {
-                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.IsActive);
+                if (user == null || !PasswordHasher.Verify(model.Password, user.PasswordHash))
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                    return View(model);
+                }
+
+                user.LastLogin = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new(ClaimTypes.Name, user.Name),
+                    new(ClaimTypes.Email, user.Email),
+                    new(ClaimTypes.Role, user.Role.ToString())
+                };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
                 return View(model);
             }
-
-            user.LastLogin = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, user.Name),
-                new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Role, user.Role.ToString())
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

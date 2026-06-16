@@ -22,6 +22,7 @@
 
             <div class="mt-4">
                 <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
                     <button type="submit" class="btn btn-danger">Confirm Delete</button>
                     <a href="@Url.Action("Index", new { userId = Model.UserId })" class="btn btn-secondary">Cancel</a>

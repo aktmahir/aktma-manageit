@@ -14,12 +14,10 @@ namespace CalendarApp.Controllers
             _context = context;
         }
 
-        // GET: Messages - Show conversations list
-        public async Task<IActionResult> Index(int? currentUserId = null)
+        // GET: Messages/Index - Show conversations list
+        public async Task<IActionResult> Index()
         {
-            var activeUserId = currentUserId ?? CurrentUserId;
-            if (activeUserId != CurrentUserId && !IsAdmin)
-                return Forbid();
+            var activeUserId = CurrentUserId;
 
             var conversations = await _context.Messages
                 .Where(m => m.SenderId == activeUserId || m.ReceiverId == activeUserId)
@@ -69,13 +67,23 @@ namespace CalendarApp.Controllers
                 .OrderBy(m => m.SentAt)
                 .ToListAsync();
 
-            // Mark received messages as read
+            // Mark received messages as read (acceptable UX pattern for chat apps)
             var unreadMessages = messages.Where(m => m.ReceiverId == activeUserId && !m.IsRead).ToList();
             foreach (var msg in unreadMessages)
             {
                 msg.IsRead = true;
             }
-            await _context.SaveChangesAsync();
+            if (unreadMessages.Any())
+            {
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    // Log error but continue to show messages
+                }
+            }
 
             ViewBag.CurrentUserId = activeUserId;
             ViewBag.OtherUserId = userId;
@@ -110,13 +118,13 @@ namespace CalendarApp.Controllers
             _context.Add(message);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Chat", new { userId = receiverId, currentUserId = senderId });
+            return RedirectToAction("Chat", new { userId = receiverId });
         }
 
         // POST: Messages/DeleteMessage/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteMessage(int id, int currentUserId, int otherUserId)
+        public async Task<IActionResult> DeleteMessage(int id)
         {
             var message = await _context.Messages.FindAsync(id);
             if (message == null)
@@ -125,18 +133,27 @@ namespace CalendarApp.Controllers
             if (message.SenderId != CurrentUserId && !IsAdmin)
                 return Unauthorized();
 
-            _context.Messages.Remove(message);
-            await _context.SaveChangesAsync();
+            int otherUserId = message.SenderId == CurrentUserId ? message.ReceiverId : message.SenderId;
+            
+            try
+            {
+                _context.Messages.Remove(message);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to delete message. Please try again.");
+            }
 
-            return RedirectToAction("Chat", new { userId = otherUserId, currentUserId });
+            return RedirectToAction("Chat", new { userId = otherUserId });
         }
 
         // GET: Messages/GetUnreadCount
         [HttpGet]
-        public async Task<IActionResult> GetUnreadCount(int userId)
+        public async Task<IActionResult> GetUnreadCount()
         {
             var unreadCount = await _context.Messages
-                .Where(m => m.ReceiverId == userId && !m.IsRead)
+                .Where(m => m.ReceiverId == CurrentUserId && !m.IsRead)
                 .CountAsync();
 
             return Json(new { count = unreadCount });

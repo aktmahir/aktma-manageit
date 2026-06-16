@@ -12,7 +12,7 @@
                     <h5 class="mb-0">💬 Conversations</h5>
                 </div>
                 <div class="card-body p-0">
-                    <a href="@Url.Action("Index", new { currentUserId = ViewBag.CurrentUserId })" class="list-group-item list-group-item-action">
+                    <a href="@Url.Action("Index")" class="list-group-item list-group-item-action">
                         ← Back to conversations
                     </a>
                 </div>
@@ -38,15 +38,11 @@
                                         <div class="d-inline-block bg-primary text-white p-2 rounded" style="max-width: 70%;">
                                             <p class="mb-1">@message.Content</p>
                                             <small>@message.SentAt.ToString("g")</small>
-                                            @if (message.SenderId == ViewBag.CurrentUserId)
-                                            {
-                                                <form asp-action="DeleteMessage" method="post" style="display: inline;">
-                                                    <input type="hidden" name="id" value="@message.Id" />
-                                                    <input type="hidden" name="currentUserId" value="@ViewBag.CurrentUserId" />
-                                                    <input type="hidden" name="otherUserId" value="@ViewBag.OtherUserId" />
-                                                    <button type="submit" class="btn btn-sm btn-danger" style="font-size: 0.7rem;">Delete</button>
-                                                </form>
-                                            }
+                                            <form asp-action="DeleteMessage" method="post" style="display: inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@message.Id" />
+                                                <button type="submit" class="btn btn-sm btn-danger" style="font-size: 0.7rem;" onclick="return confirm('Delete this message?');">Delete</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -75,6 +71,7 @@
 
                 <div class="card-footer">
                     <form asp-action="SendMessage" method="post">
+                        @Html.AntiForgeryToken()
                         <div class="input-group">
                             <input type="hidden" name="senderId" value="@ViewBag.CurrentUserId" />
                             <input type="hidden" name="receiverId" value="@ViewBag.OtherUserId" />
