@@ -54,9 +54,9 @@ namespace CalendarApp.Data
             var seedTimestamp = new DateTime(2026, 01, 01, 9, 0, 0, DateTimeKind.Utc);
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Admin User", Email = "admin@example.com", PasswordHash = PasswordHasher.Hash("Admin123!"), Role = UserRole.Admin, IsActive = true, CreatedAt = seedTimestamp },
-                new User { Id = 2, Name = "John Doe", Email = "john@example.com", PasswordHash = PasswordHasher.Hash("John123!"), Role = UserRole.CompanyOwner, IsActive = true, CreatedAt = seedTimestamp },
-                new User { Id = 3, Name = "Jane Smith", Email = "jane@example.com", PasswordHash = PasswordHasher.Hash("Jane123!"), Role = UserRole.Member, IsActive = true, CreatedAt = seedTimestamp }
+                new User { Id = 1, Name = "Admin User", Email = "admin@example.com", PasswordHash = "PrP+ZrMeO00Q+nC1ytSccRIpSvauTkdqHEBRVdRaoSE=", Role = UserRole.Admin, IsActive = true, CreatedAt = seedTimestamp },
+                new User { Id = 2, Name = "John Doe", Email = "john@example.com", PasswordHash = "INj/IVC0FLy/cW1LGVRCKp3MG5CsH28ZUd3F3GJYbzQ=", Role = UserRole.CompanyOwner, IsActive = true, CreatedAt = seedTimestamp },
+                new User { Id = 3, Name = "Jane Smith", Email = "jane@example.com", PasswordHash = "dkHMjjt1rrWKFy4aPkpISjNK7HErMGHr/9zE3HZnV0E=", Role = UserRole.Member, IsActive = true, CreatedAt = seedTimestamp }
             );
 
             var today = new DateTime(2026, 01, 02, 9, 0, 0, DateTimeKind.Utc);

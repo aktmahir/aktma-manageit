@@ -103,7 +103,7 @@ namespace CalendarApp.Controllers
                 SenderId = senderId,
                 ReceiverId = receiverId,
                 Content = content,
-                SentAt = DateTime.Now,
+                SentAt = DateTime.UtcNow,
                 IsRead = false
             };
 

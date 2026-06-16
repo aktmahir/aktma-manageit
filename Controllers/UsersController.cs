@@ -48,13 +48,22 @@ namespace CalendarApp.Controllers
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email")] User user)
+        public async Task<IActionResult> Create([Bind("Name,Email,Role,IsActive")] User user)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    user.PasswordHash = PasswordHasher.Hash("TempPass123!");
+                    user.CreatedAt = DateTime.UtcNow;
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("Email", "A user with this email already exists.");
+                }
             }
 
             return View(user);
@@ -87,16 +96,18 @@ namespace CalendarApp.Controllers
                 {
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!UserExists(user.Id))
                         return NotFound();
-                    else
-                        throw;
+                    throw;
                 }
-
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("Email", "A user with this email already exists.");
+                }
             }
 
             return View(user);

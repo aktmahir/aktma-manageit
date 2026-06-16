@@ -66,11 +66,19 @@ namespace CalendarApp.Controllers
 
             @event.UserId = userId;
 
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { userId });
+                if (ModelState.IsValid)
+                {
+                    @event.CreatedAt = DateTime.UtcNow;
+                    _context.Add(@event);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index), new { userId });
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to save event. Please try again.");
             }
 
             ViewBag.UserId = userId;

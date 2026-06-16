@@ -39,6 +39,9 @@ namespace CalendarApp.Controllers
                 return View(model);
             }
 
+            user.LastLogin = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -51,7 +54,7 @@ namespace CalendarApp.Controllers
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            return RedirectToAction("Index", "Home", new { userId = user.Id });
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
