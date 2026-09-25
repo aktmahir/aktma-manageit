@@ -4,6 +4,10 @@ obj/
 .gitignore
 .env
 .env.*
+cookies.txt
+headers.txt
+login.html
+login-result.html
 Dockerfile
 .dockerignore
 README.md

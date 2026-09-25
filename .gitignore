@@ -39,6 +39,12 @@ ScaffoldingReadMe.txt
 # dotenv environment variables file
 .env
 
+# Local demo smoke-test artifacts
+cookies.txt
+headers.txt
+login.html
+login-result.html
+
 # Others
 ~$*
 *~
